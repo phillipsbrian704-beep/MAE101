@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc Nghiệm: Phương Trình Tiếp Tuyến</title>
+
+    <!-- MathJax Configuration -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <!-- MathJax Library -->
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    
+    <!-- CSS STYLES -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+        :root {
+            --bg-color: #f0f2f5;
+            --container-bg: #ffffff;
+            --text-color: #333;
+            --primary-blue: #007bff;
+            --primary-green: #28a745;
+            --correct-color: #28a745;
+            --incorrect-color: #dc3545;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --border-color: #dee2e6;
+            --option-hover-bg: #e9ecef;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-blue);
+            margin-bottom: 25px;
+        }
+
+        #progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-green);
+            border-radius: 5px;
+            transition: width 0.3s ease-in-out;
+        }
+
+        #question-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        #question-text {
+            font-size: 1.25em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        #options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .option:hover {
+            background-color: var(--option-hover-bg);
+            border-color: var(--primary-blue);
+        }
+
+        .option.selected {
+            border-color: var(--primary-blue);
+            background-color: #e7f1ff;
+        }
+
+        .option.correct {
+            background-color: #d4edda;
+            border-color: var(--correct-color);
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .option.incorrect {
+            background-color: #f8d7da;
+            border-color: var(--incorrect-color);
+            color: #721c24;
+        }
+
+        /* Disabled state for options after answering */
+        .option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .feedback-container {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            min-height: 24px;
+            text-align: center;
+        }
+
+        .feedback-correct {
+            color: var(--correct-color);
+        }
+
+        .feedback-incorrect {
+            color: var(--incorrect-color);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+            margin: 25px auto 0;
+        }
+
+        .btn-3d-blue {
+            background-color: var(--primary-blue);
+            box-shadow: 0 5px 0 #0056b3;
+        }
+        .btn-3d-blue:active {
+            box-shadow: 0 2px 0 #0056b3;
+            transform: translateY(3px);
+        }
+        .btn-3d-blue:disabled {
+            background-color: #6c757d;
+            box-shadow: 0 5px 0 #494f54;
+            cursor: not-allowed;
+        }
+
+
+        .btn-3d-green {
+            background-color: var(--primary-green);
+            box-shadow: 0 5px 0 #1a682c;
+        }
+        .btn-3d-green:active {
+            box-shadow: 0 2px 0 #1a682c;
+            transform: translateY(3px);
+        }
+
+
+        .hidden {
+            display: none;
+        }
+
+        #result-container {
+            text-align: center;
+        }
+
+        #score-text {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        #result-message {
+            font-size: 1.2em;
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HTML CONTENT -->
+    <div class="container">
+        <h1>Trắc Nghiệm Nhanh: Phương Trình Tiếp Tuyến</h1>
+        
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+
+        <div id="quiz-container">
+            <div id="question-header">
+                <span id="question-number"></span>
+            </div>
+            <div id="question-text"></div>
+            <div id="options-container">
+                <!-- Options will be dynamically inserted here -->
+            </div>
+            <div id="feedback" class="feedback-container"></div>
+            <button id="next-btn" class="btn btn-3d-blue">Câu Tiếp Theo</button>
+        </div>
+
+        <div id="result-container" class="hidden">
+            <h2>Hoàn Thành Bài Kiểm Tra!</h2>
+            <p id="score-text"></p>
+            <p id="result-message"></p>
+            <button id="retry-btn" class="btn btn-3d-green">Làm Lại</button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const quizData = [
+                {
+                    question: "Viết phương trình tiếp tuyến của đồ thị hàm số $y = x^3 - 3x + 2$ tại điểm có hoành độ $x_0 = 2$.",
+                    options: [
+                        "$y = 9x - 14$",
+                        "$y = 3x - 2$",
+                        "$y = 9x + 4$",
+                        "$y = 4$"
+                    ],
+                    answer: 0 // Index of the correct option
+                },
+                {
+                    question: "Viết phương trình tiếp tuyến của đồ thị hàm số $y = \\frac{2x - 1}{x + 1}$ tại giao điểm của đồ thị với trục tung.",
+                    options: [
+                        "$y = -x - 1$",
+                        "$y = 2x - 1$",
+                        "$y = 3x + 1$",
+                        "$y = 3x - 1$"
+                    ],
+                    answer: 3
+                },
+                {
+                    question: "Viết phương trình tiếp tuyến của đồ thị hàm số $y = \\sqrt{2x + 1}$ tại điểm có tung độ $y_0 = 3$.",
+                    options: [
+                        "$y = \\frac{1}{3}x + \\frac{5}{3}$",
+                        "$y = 3x - 9$",
+                        "$y = \\frac{1}{3}x + \\frac{13}{3}$",
+                        "$y = x + 1$"
+                    ],
+                    answer: 0
+                },
+                {
+                    question: "Viết phương trình tiếp tuyến của đồ thị hàm số $y = \\sin(2x) + \\cos(x)$ tại điểm có hoành độ $x_0 = \\frac{\\pi}{2}$.",
+                    options: [
+                        "$y = -x + \\frac{\\pi}{2}$",
+                        "$y = -2x + \\pi$",
+                        "$y = -3x + \\frac{3\\pi}{2}$",
+                        "$y = x - \\frac{\\pi}{2}$"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "Tìm phương trình tiếp tuyến của đường cong (folium of Descartes) $x^3 + y^3 - 6xy = 0$ tại điểm $M(3, 3)$.",
+                    options: [
+                        "$y = x$",
+                        "$y = -x + 6$",
+                        "$y = 2x - 3$",
+                        "$y = -x$"
+                    ],
+                    answer: 1
+                }
+            ];
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let answered = false;
+
+            const questionNumberEl = document.getElementById('question-number');
+            const questionTextEl = document.getElementById('question-text');
+            const optionsContainerEl = document.getElementById('options-container');
+            const feedbackEl = document.getElementById('feedback');
+            const nextBtn = document.getElementById('next-btn');
+            const quizContainer = document.getElementById('quiz-container');
+            const resultContainer = document.getElementById('result-container');
+            const scoreTextEl = document.getElementById('score-text');
+            const retryBtn = document.getElementById('retry-btn');
+            const progressBar = document.getElementById('progress-bar');
+            const resultMessageEl = document.getElementById('result-message');
+
+
+            function loadQuestion() {
+                answered = false;
+                feedbackEl.innerHTML = '';
+                feedbackEl.className = 'feedback-container'; // Reset class
+                const currentQuestion = quizData[currentQuestionIndex];
+                
+                questionNumberEl.innerText = `Câu ${currentQuestionIndex + 1}/${quizData.length}`;
+                questionTextEl.innerHTML = currentQuestion.question;
+                
+                optionsContainerEl.innerHTML = '';
+                currentQuestion.options.forEach((option, index) => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    optionElement.innerHTML = option;
+                    optionElement.dataset.index = index;
+                    optionElement.addEventListener('click', selectOption);
+                    optionsContainerEl.appendChild(optionElement);
+                });
+
+                nextBtn.disabled = true;
+                updateProgressBar();
+                // Check if MathJax is loaded before typesetting
+                if (window.MathJax) {
+                    MathJax.typesetPromise();
+                }
+            }
+
+            function selectOption(e) {
+                if (answered) return;
+                answered = true;
+
+                const selectedOption = e.currentTarget;
+                const selectedAnswerIndex = parseInt(selectedOption.dataset.index);
+                const correctAnswerIndex = quizData[currentQuestionIndex].answer;
+
+                if (selectedAnswerIndex === correctAnswerIndex) {
+                    score++;
+                    selectedOption.classList.add('correct');
+                    feedbackEl.innerHTML = 'Chúc mừng bạn đã trả lời đúng!';
+                    feedbackEl.classList.add('feedback-correct');
+                } else {
+                    selectedOption.classList.add('incorrect');
+                    const correctAnswerEl = optionsContainerEl.querySelector(`[data-index='${correctAnswerIndex}']`);
+                    correctAnswerEl.classList.add('correct');
+                    feedbackEl.innerHTML = 'Rất tiếc, bạn đã trả lời sai. Đáp án đúng đã được tô sáng.';
+                    feedbackEl.classList.add('feedback-incorrect');
+                }
+
+                // Disable all options
+                document.querySelectorAll('.option').forEach(opt => opt.classList.add('disabled'));
+
+                nextBtn.disabled = false;
+            }
+
+            function showResults() {
+                quizContainer.classList.add('hidden');
+                resultContainer.classList.remove('hidden');
+                scoreTextEl.innerText = `Điểm của bạn: ${score} / ${quizData.length}`;
+                
+                let message = '';
+                const percentage = (score / quizData.length) * 100;
+                if (percentage === 100) {
+                    message = 'Tuyệt vời! Bạn đã nắm rất vững kiến thức này.';
+                } else if (percentage >= 60) {
+                    message = 'Khá tốt! Hãy xem lại những câu sai để hoàn thiện hơn nhé.';
+                } else {
+                    message = 'Đừng lo lắng, hãy ôn lại bài giảng và thử lại. Thành công sẽ đến!';
+                }
+                resultMessageEl.innerText = message;
+            }
+
+            function updateProgressBar() {
+                const progressPercentage = (currentQuestionIndex / quizData.length) * 100;
+                progressBar.style.width = `${progressPercentage}%`;
+            }
+
+            nextBtn.addEventListener('click', () => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizData.length) {
+                    loadQuestion();
+                } else {
+                    updateProgressBar(); // To fill the bar at the end
+                    progressBar.style.width = `100%`;
+                    showResults();
+                }
+            });
+
+            retryBtn.addEventListener('click', () => {
+                currentQuestionIndex = 0;
+                score = 0;
+                resultContainer.classList.add('hidden');
+                quizContainer.classList.remove('hidden');
+                loadQuestion();
+            });
+
+            // Start the quiz
+            loadQuestion();
+        });
+    </script>
+</body>
+</html>
